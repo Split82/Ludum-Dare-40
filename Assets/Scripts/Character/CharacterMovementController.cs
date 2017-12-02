@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-public class AvatarController : MonoBehaviour {
+public class CharacterMovementController : MonoBehaviour {
 
 	[SerializeField] float _movementSpeed = 1.0f;
 	[SerializeField] float _groundFriction = 0.8f;
@@ -11,8 +11,27 @@ public class AvatarController : MonoBehaviour {
 	[SerializeField] float _jumpStartSpeed = 10.0f;
 	[SerializeField] float _groundCheckDistance = 0.1f;
 	[SerializeField] float _minTimeBetweenGrounded = 0.2f;
-	[SerializeField] Vector2 _avatarSize = new Vector2(1.0f, 1.0f);
+	[SerializeField] Vector2 _groundCheckSize = new Vector2(1.0f, 1.0f);
+	[SerializeField] Vector2 _groundCheckOffset = new Vector2(0.0f, 0.0f);
 	[SerializeField] LayerMask _groundCheckLayerMask;
+
+	public bool grounded {
+		get {
+			return _grounded;
+		}
+	}
+
+	public Vector3 velocity {
+		get {
+			return _rigidbody.velocity;
+		}
+	}
+
+	public Vector3 position {
+		get {
+			return _rigidbody.position;
+		}
+	}
 
 	private Rigidbody2D _rigidbody;
 	private RaycastHit2D[] _raycastResults;
@@ -32,35 +51,38 @@ public class AvatarController : MonoBehaviour {
 
 		Vector3 velocity = _rigidbody.velocity;
 		Vector3 position = _rigidbody.position;
-
+		
 		if (_canBeGroundedTimer > 0.0f) {
 			_canBeGroundedTimer -= Time.fixedDeltaTime;
 		}
 
 		// Ground Check
-		if (_canBeGroundedTimer <= 0.0f && Physics2D.BoxCastNonAlloc(position, _avatarSize, 0.0f, Vector2.down, _raycastResults, _groundCheckDistance, _groundCheckLayerMask) > 0) {
+		if (_canBeGroundedTimer <= 0.0f && Physics2D.BoxCastNonAlloc((Vector2)position + _groundCheckOffset, _groundCheckSize, 0.0f, Vector2.down, _raycastResults, _groundCheckDistance, _groundCheckLayerMask) > 0) {
 			_grounded = true;
 		}
 
 		bool directionKeyIsActive = false;
 
-		// Controls
-		if (Input.GetKey(KeyCode.LeftArrow)) {
-			directionKeyIsActive = true;
-			if (velocity.x > 0.0f) {
-				velocity.x *= _groundFriction;	
-			}			
-			velocity.x -= Time.fixedDeltaTime * _movementSpeed;
-		}
-		
-		if (Input.GetKey(KeyCode.RightArrow)) {
-			directionKeyIsActive = true;
-			if (velocity.x < 0.0f) {
-				velocity.x *= _groundFriction;	
-			}			
-			velocity.x += Time.fixedDeltaTime * _movementSpeed;
-		}
+		bool leftKeyActive = Input.GetKey(KeyCode.LeftArrow);
+		bool rightKeyActive = Input.GetKey(KeyCode.RightArrow);
 
+		// Controls
+		if (leftKeyActive ^ rightKeyActive) {
+			if (leftKeyActive) {
+				directionKeyIsActive = true;
+				if (velocity.x > 0.0f) {
+					velocity.x *= _groundFriction;	
+				}			
+				velocity.x -= Time.fixedDeltaTime * _movementSpeed;
+			}			
+			if (rightKeyActive) {
+				directionKeyIsActive = true;
+				if (velocity.x < 0.0f) {
+					velocity.x *= _groundFriction;	
+				}			
+				velocity.x += Time.fixedDeltaTime * _movementSpeed;
+			}
+		}
 		if (!directionKeyIsActive && _grounded) {
 			velocity.x *= _groundFriction;
 		}
@@ -89,14 +111,20 @@ public class AvatarController : MonoBehaviour {
 		_rigidbody.velocity = velocity;
 	}
 
+	public void TeleportTo(Vector3 position) {
+
+		_rigidbody.velocity = Vector3.zero;
+		_rigidbody.position = position;
+	}
+
     private void OnDrawGizmosSelected() {
 		
 		if (!_rigidbody) {
 			_rigidbody = GetComponent<Rigidbody2D>();
 		}
         Gizmos.color = Color.yellow;
-		Gizmos.DrawWireCube(_rigidbody.position, _avatarSize);
+		Gizmos.DrawWireCube(_rigidbody.position + _groundCheckOffset, _groundCheckSize);
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireCube(_rigidbody.position + Vector2.down * _groundCheckDistance, _avatarSize);        
+		Gizmos.DrawWireCube(_rigidbody.position  + _groundCheckOffset + Vector2.down * _groundCheckDistance, _groundCheckSize);        
     }
 }
