@@ -56,6 +56,7 @@ public class CharacterMovementController : MonoBehaviour {
 	private bool _jumpKeyWasUp;
 	private float _jumpEnergy;
 	private MovingDirection _movingDirection;
+	private Vector3 _pushAccumulator;
 
 	private void Awake() {
 
@@ -68,7 +69,7 @@ public class CharacterMovementController : MonoBehaviour {
 	private void FixedUpdate() {
 
 		Vector3 velocity = _rigidbody.velocity;
-		Vector3 position = _rigidbody.position;
+		Vector3 position = _rigidbody.position;		
 		
 		if (_canBeGroundedTimer > 0.0f) {
 			_canBeGroundedTimer -= Time.fixedDeltaTime;
@@ -86,7 +87,7 @@ public class CharacterMovementController : MonoBehaviour {
 
 		bool leftKeyActive = Input.GetKey(KeyCode.LeftArrow);
 		bool rightKeyActive = Input.GetKey(KeyCode.RightArrow);
-		bool jumpKeyActive = Input.GetKey(KeyCode.UpArrow);
+		bool jumpKeyActive = Input.GetKey(KeyCode.Z);
 
 		// Controls
 		if (leftKeyActive ^ rightKeyActive) {
@@ -110,6 +111,8 @@ public class CharacterMovementController : MonoBehaviour {
 
 		if (!directionKeyIsActive) {
 			velocity.x *= _grounded ? _groundFriction : _airFriction;
+			velocity += _pushAccumulator;
+			_pushAccumulator = Vector3.zero;
 		}
 
 		// Max velocity
@@ -140,6 +143,16 @@ public class CharacterMovementController : MonoBehaviour {
 		_jumpEnergy *= _jumpEnergyDepletionMul;
 
 		_rigidbody.velocity = velocity;
+	}
+
+	public void PushBack(float strength) {
+
+		if (_movingDirection == MovingDirection.Left) {
+			_pushAccumulator += new Vector3(strength, 0.0f, 0.0f);
+		}
+		else {
+			_pushAccumulator += new Vector3(-strength, 0.0f, 0.0f);
+		}
 	}
 
 	public void TeleportTo(Vector3 position) {

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RealPixelPerfectCamera : MonoBehaviour {
 
-	[SerializeField] int _pixelsHeight = 320;
+	[SerializeField] int _heightFraction = 4;
 
 	private Camera _thisCamera;
 	private Camera _pixelCamera;
@@ -20,7 +20,8 @@ public class RealPixelPerfectCamera : MonoBehaviour {
 		_pixelCamera.CopyFrom(_thisCamera);
 		_pixelCamera.enabled = false;
 
-		var _renderTexture = new RenderTexture(Mathf.RoundToInt(_thisCamera.aspect * _pixelsHeight), _pixelsHeight, 24, RenderTextureFormat.ARGB32);
+		var pixelsHeight = _thisCamera.pixelHeight / _heightFraction;
+		var _renderTexture = new RenderTexture(Mathf.RoundToInt(_thisCamera.aspect * pixelsHeight), pixelsHeight, 24, RenderTextureFormat.ARGB32);
 		_renderTexture.filterMode = FilterMode.Point;
 		_pixelCamera.targetTexture = _renderTexture;		
 

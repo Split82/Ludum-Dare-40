@@ -31,10 +31,11 @@ public class CharacterAnimationController : MonoBehaviour {
 		
 	private void Update() {
  			
-		var isRunning = _characterMovementController.grounded && Mathf.Abs(_characterMovementController.velocity.x) > _runningSpeedThreshold;
+		float movingDirection = _characterMovementController.movingDirection == CharacterMovementController.MovingDirection.Left ? 1.0f : -1.0f;			 
+		var isRunning = _characterMovementController.grounded && Mathf.Abs(_characterMovementController.velocity.x) > _runningSpeedThreshold && _characterMovementController.velocity.x * movingDirection < 0.0f;
 		_animator.SetBool(_runningID, isRunning);	
-
-		_graphicsTransform.localScale = new Vector3(_characterMovementController.movingDirection == CharacterMovementController.MovingDirection.Left ? 1.0f : -1.0f, 1.0f, 1.0f);
+		
+		_graphicsTransform.localScale = new Vector3(movingDirection, 1.0f, 1.0f);
 	}
 
 	private void HandleCharactedStartedJumpEvent(object sender, BasicGameEvent gameEvent) {
