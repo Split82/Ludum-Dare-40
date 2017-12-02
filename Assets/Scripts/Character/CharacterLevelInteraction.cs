@@ -11,7 +11,7 @@ public class CharacterLevelInteraction : MonoBehaviour {
 	[SerializeField] CharacterBackpack _characterBackpack;
 	[SerializeField] Tilemap _tilemap;
 
-	public event System.Action<Tile> didPickupTileEvent;		
+	//public event System.Action<Tile> didPickupTileEvent;		
 
 	private Camera _camera;
 

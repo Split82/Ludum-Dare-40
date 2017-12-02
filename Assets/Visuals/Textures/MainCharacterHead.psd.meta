@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 0ef394989fcdcc84cbabe32837cdfd1f
-timeCreated: 1512208094
+guid: 7be2f7fd8a4194c458d0ff422da7e3f6
+timeCreated: 1512238575
 licenseType: Pro
 TextureImporter:
   fileIDToRecycleName: {}
@@ -46,7 +46,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 10
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -88,7 +88,7 @@ TextureImporter:
     sprites: []
     outline: []
     physicsShape: []
-  spritePackingTag: 
+  spritePackingTag: Main
   userData: 
   assetBundleName: 
   assetBundleVariant: 
