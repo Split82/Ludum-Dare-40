@@ -60,11 +60,15 @@ public class CharacterMovementController : MonoBehaviour {
 		if (_canBeGroundedTimer <= 0.0f && Physics2D.BoxCastNonAlloc((Vector2)position + _groundCheckOffset, _groundCheckSize, 0.0f, Vector2.down, _raycastResults, _groundCheckDistance, _groundCheckLayerMask) > 0) {
 			_grounded = true;
 		}
+		else {
+			_grounded = false;			 
+		}
 
 		bool directionKeyIsActive = false;
 
-		bool leftKeyActive = Input.GetKey(KeyCode.LeftArrow);
-		bool rightKeyActive = Input.GetKey(KeyCode.RightArrow);
+		bool leftKeyActive = Input.GetKey(KeyCode.A);
+		bool rightKeyActive = Input.GetKey(KeyCode.D);
+		bool jumpKeyActive = Input.GetKey(KeyCode.W);
 
 		// Controls
 		if (leftKeyActive ^ rightKeyActive) {
@@ -96,7 +100,7 @@ public class CharacterMovementController : MonoBehaviour {
 		}		
 
 		// Jump
-		if (Input.GetKey(KeyCode.UpArrow)) {			
+		if (jumpKeyActive) {			
 			if (_grounded && _jumpKeyWasUp) {			
 				velocity.y = _jumpStartSpeed;
 				_canBeGroundedTimer = _minTimeBetweenGrounded;
