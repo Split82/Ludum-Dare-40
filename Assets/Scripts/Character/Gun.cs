@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour {
 
-	[EventSender] [SerializeField] BasicGameEvent _didFireEvent;
+	[EventSender] [SerializeField] PositionDirectionGameEvent _didFireEvent;
 	[SerializeField] CharacterMovementController _characterMovementController;
 	[SerializeField] Bullet _bulletPrefab;
 	[SerializeField] Transform _firePoint;
@@ -32,12 +32,15 @@ public class Gun : MonoBehaviour {
 		}
 
 		if (fireButtonActive && _timeAccumulator >= _interval) {	
+			var firePointPos = _firePoint.transform.position;
 			float flipDirection = _characterMovementController.movingDirection == CharacterMovementController.MovingDirection.Left ? 1.0f : -1.0f;
-			var bullet = _bulletPrefab.Spawn(_firePoint.transform.position);
+			var bullet = _bulletPrefab.Spawn(firePointPos);
 			var direction = -_firePoint.transform.right * flipDirection;
 			bullet.Init(direction);
 			_timeAccumulator -= _interval;
 			_characterMovementController.PushBack(_kickBack);
+			_didFireEvent.position = firePointPos;
+			_didFireEvent.direction = direction;
 			_didFireEvent.Raise(this, _didFireEvent);
 		}
 
