@@ -160,6 +160,7 @@ public class GameplayManager : MonoBehaviour {
 
 	private IEnumerator GoToMainMenuAfterDelayCoroutin(float duration) {
 
+		MainMenu.showScoreBar = true;
 		yield return new WaitForSeconds(duration);
 		SceneManager.LoadScene("MainMenu");
 	}
