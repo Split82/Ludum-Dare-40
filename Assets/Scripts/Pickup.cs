@@ -9,14 +9,22 @@ public class Pickup : MonoBehaviour {
 	[SerializeField] SpriteRenderer _spriteRenderer;
 	[SerializeField] Animator _animator;
 
+	private bool _wasPickedUp;
+
 	private void OnEnable() {
 		
 		_collider.enabled = true;
 		_spriteRenderer.enabled = true;
 		_animator.SetBool("Active", true);
+		_wasPickedUp = false;
 	}
 
     private void OnTriggerEnter2D(Collider2D other) {
+
+		if (_wasPickedUp) {
+			return;
+		}
+		_wasPickedUp = true;
 
 		_collider.enabled = false;
 		_spriteRenderer.enabled = false;

@@ -96,6 +96,11 @@ public class GameplayManager : MonoBehaviour {
 			SpawnBasicEnemy();
 			_nextBasicEnemyTimer = 4.0f / (_pickedPickupsCount * 0.2f + 1.0f);
 		}		
+
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			MainMenu.showScoreBar = false;
+			SceneManager.LoadScene("MainMenu");
+		}
 	}
 
 	private void SpawnPickup() {
