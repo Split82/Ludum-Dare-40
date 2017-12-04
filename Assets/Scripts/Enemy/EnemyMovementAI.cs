@@ -9,12 +9,16 @@ public class EnemyMovementAI : MonoBehaviour {
 	[Space]	
 	[SerializeField] Tile _leftPassableTile;
 	[SerializeField] Tile _rightPassableTile;
+	[SerializeField] Tile _recycleTile;
 	[SerializeField] Rigidbody2D _rigidbody;
 	[SerializeField] float _movementElasticity = 1.0f;
 	[SerializeField] float _movementStrength = 1.0f;
 	[SerializeField] float _movementFriction = 0.9f;
-	[SerializeField] float _maxVelocity = 1.0f;
-	[SerializeField] int _downDirection = -1;
+	[SerializeField] float _coreMaxVelocity = 1.0f;
+	[SerializeField] float _randomMaxVelocity = 0.01f;
+	[SerializeField] int _downDirection = -1;	
+
+	public System.Action didHidRecycleTileEvent;
 
 	public MovingDirection movingDirection {
 		get {
@@ -30,25 +34,28 @@ public class EnemyMovementAI : MonoBehaviour {
 	private Vector2 _velocity;
 	private Vector2 _destination;
 	private Vector3Int _prevCellPosition;
-
 	private MovingDirection _movingDirection;
-
 	private Tilemap _tilemap;
+	private float _maxVelocity;
+	
+	private void Awake() {
+		_prevCellPosition.x = int.MaxValue;
+		_movingDirection = MovingDirection.Left;
+		_rigidbody.bodyType = RigidbodyType2D.Kinematic;
+	}
+
+	private void Start() {
+
+		_tilemap = _tilemapProvider.tilemap;
+	}	
 	
 	public void Init(int downDirection, MovingDirection movingDirection) {
 
 		_downDirection = downDirection;
 		_movingDirection = movingDirection;
 		_prevCellPosition.x = int.MaxValue;		
+		_maxVelocity = _coreMaxVelocity + Random.Range(-_randomMaxVelocity, _randomMaxVelocity);
 	}
-
-	private void Awake() {
-
-		_tilemap = _tilemapProvider.tilemap;
-		_prevCellPosition.x = int.MaxValue;
-		_movingDirection = MovingDirection.Left;
-		_rigidbody.bodyType = RigidbodyType2D.Kinematic;
-	}	
 
 	private void FixedUpdate() {
 
@@ -56,7 +63,16 @@ public class EnemyMovementAI : MonoBehaviour {
 
 		Vector3Int cellPosition = _tilemap.WorldToCell(position);
 		int xd = _movingDirection == MovingDirection.Left ? -1 : 1;
+
 		if (cellPosition != _prevCellPosition) {
+
+			var tile = _tilemap.GetTile(cellPosition);
+			if (tile == _recycleTile) {
+				if (didHidRecycleTileEvent != null) {
+					didHidRecycleTileEvent();
+				}
+			}
+
 			var targetCellPosition = FindNewTargetPosition(cellPosition, xd);
 			if (targetCellPosition.x < cellPosition.x) {
 				_movingDirection = MovingDirection.Left;
@@ -70,7 +86,7 @@ public class EnemyMovementAI : MonoBehaviour {
 
 		_velocity += (_destination - (Vector2)position) * _movementElasticity * Time.fixedDeltaTime;
 		_velocity *= _movementFriction;
-		var sqrMagnitude = _velocity.sqrMagnitude;
+		var sqrMagnitude = _velocity.sqrMagnitude;		
 		if (_velocity.sqrMagnitude > _maxVelocity * _maxVelocity) {
 			_velocity = _maxVelocity * _velocity / Mathf.Sqrt(sqrMagnitude);
 		}
@@ -142,11 +158,12 @@ public class EnemyMovementAI : MonoBehaviour {
 	private bool TileIsOccupied(Vector3Int pos, int xd) {
 		
 		var tile = _tilemap.GetTile(pos);
+		
 		if (xd > 0) {
-			return tile != null && tile != _rightPassableTile;
+			return tile != null && tile != _rightPassableTile && tile != _recycleTile;
 		}
 		else if (xd < 0) {
-			return tile != null && tile != _leftPassableTile;
+			return tile != null && tile != _leftPassableTile && tile != _recycleTile;
 		}
 		else {
 			return tile != null;

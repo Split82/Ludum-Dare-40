@@ -6,25 +6,41 @@ public class ScreenshakeSpawner : MonoBehaviour {
 	
 	[SerializeField] Screenshake _screenshake;
 	[Space]
-	[SerializeField] GameEvent[] _gameEvents;
-	[SerializeField] float _strength = 0.1f;
+	[SerializeField] EventStrengthCouple[] _eventStrengthCouples;
+
+	[System.Serializable]
+	public class EventStrengthCouple {
+		public GameEvent gameEvent;
+		public float strength;
+	}
+
+	private Dictionary<GameEvent, float> _eventStrengthDict;
+
+	private void Awake() {
+
+		_eventStrengthDict = new Dictionary<GameEvent, float>();
+		foreach (EventStrengthCouple eventStrengthCouple in _eventStrengthCouples) {
+			_eventStrengthDict[eventStrengthCouple.gameEvent] = eventStrengthCouple.strength;
+		}
+	}
 
 	private void OnEnable() {
 
-		foreach (GameEvent gameEvent in _gameEvents) {
-			gameEvent.Subscribe(HandleEvent);
+		foreach (EventStrengthCouple eventStrengthCouple in _eventStrengthCouples) {
+			eventStrengthCouple.gameEvent.Subscribe(HandleEvent);
 		}
 	}
 
 	private void OnDisable() {
 
-		foreach (GameEvent gameEvent in _gameEvents) {
-			gameEvent.Unsubscribe(HandleEvent);
+		foreach (EventStrengthCouple eventStrengthCouple in _eventStrengthCouples) {
+			eventStrengthCouple.gameEvent.Unsubscribe(HandleEvent);
 		}
 	}
 
 	private void HandleEvent(object obj, GameEvent gameEvent) {
 
-		_screenshake.AddScreenshake(_strength);
+		float strength = _eventStrengthDict[gameEvent];
+		_screenshake.AddScreenshake(strength);
 	}
 }

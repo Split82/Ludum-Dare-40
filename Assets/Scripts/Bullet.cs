@@ -9,6 +9,12 @@ public class Bullet : MonoBehaviour {
 	[SerializeField] Rigidbody2D _rigidbody;
 	[SerializeField] float _speed;		
 
+	public Vector2 direction {
+		get {
+			return _direction;
+		}
+	}
+
 	private Vector2 _direction;
 
 	private void Start() {

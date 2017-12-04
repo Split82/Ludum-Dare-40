@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CharacterAnimationController : MonoBehaviour {
 
-	[SerializeField] BasicGameEvent _charactedStartedJumpEvent;
+	[SerializeField] PositionDirectionGameEvent _charactedStartedJumpEvent;
 	[SerializeField] CharacterMovementController _characterMovementController;
 	[SerializeField] Animator _animator;
 	[SerializeField] Transform _graphicsTransform;
@@ -38,7 +38,7 @@ public class CharacterAnimationController : MonoBehaviour {
 		_graphicsTransform.localScale = new Vector3(movingDirection, 1.0f, 1.0f);
 	}
 
-	private void HandleCharactedStartedJumpEvent(object sender, BasicGameEvent gameEvent) {
+	private void HandleCharactedStartedJumpEvent(object sender, GameEvent gameEvent) {
 
 		StopAllCoroutines();
 		StartCoroutine(JumpRotationCoroutine());

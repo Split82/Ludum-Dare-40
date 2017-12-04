@@ -8,9 +8,9 @@ public class EnemySpawnPlace : MonoBehaviour {
 	[SerializeField] int _downDirection;
 	[SerializeField] EnemyMovementAI.MovingDirection _movingDirection;
 
-	public void SpawnEnemy() {
+	public void SpawnEnemy(int energy) {
 
 		var enemy = _enemyPrefab.Spawn(transform.position);
-		enemy.Init(_downDirection, _movingDirection, 1);
+		enemy.Init(_downDirection, _movingDirection, energy);
 	}
 }

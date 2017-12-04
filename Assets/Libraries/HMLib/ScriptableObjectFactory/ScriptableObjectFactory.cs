@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+
+using System;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -27,3 +29,5 @@ public class ScriptableObjectFactory
 		return Assembly.Load (new AssemblyName ("Assembly-CSharp"));
 	}
 }
+
+#endif

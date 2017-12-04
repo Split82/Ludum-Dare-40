@@ -5,6 +5,10 @@ using UnityEngine.Assertions;
 
 public class CharacterMovementController : MonoBehaviour {
 
+	[EventSender] [SerializeField] PositionDirectionGameEvent _didBecomeGrounded;
+	[EventSender] [SerializeField] PositionDirectionGameEvent _characterStartedJumpEvent;
+	[SerializeField] Vector3Variable _position;
+	[Space]
 	[SerializeField] float _movementSpeed = 1.0f;
 	[SerializeField] float _groundFriction = 0.8f;
 	[SerializeField] float _airFriction = 0.8f;
@@ -17,9 +21,7 @@ public class CharacterMovementController : MonoBehaviour {
 	[SerializeField] Vector2 _groundCheckSize = new Vector2(1.0f, 1.0f);
 	[SerializeField] Vector2 _groundCheckOffset = new Vector2(0.0f, 0.0f);
 	[SerializeField] LayerMask _groundCheckLayerMask;
-
-	[EventSender] [SerializeField] BasicGameEvent _characterStartedJumpEvent;
-
+	
 	public enum MovingDirection {
 		Left,
 		Right,
@@ -49,9 +51,16 @@ public class CharacterMovementController : MonoBehaviour {
 		}
 	}
 
+	public bool isTouchingGround {
+		get {
+			return _wasTouchingGround;
+		}
+	}
+
 	private Rigidbody2D _rigidbody;
 	private RaycastHit2D[] _raycastResults;
 	private bool _grounded;
+	private bool _wasTouchingGround;
 	private float _canBeGroundedTimer;
 	private bool _jumpKeyWasUp;
 	private float _jumpEnergy;
@@ -66,22 +75,31 @@ public class CharacterMovementController : MonoBehaviour {
 		_raycastResults = new RaycastHit2D[4];
 	}
 
-	private void FixedUpdate() {
+	private void FixedUpdate() {		
 
 		Vector3 velocity = _rigidbody.velocity;
 		Vector3 position = _rigidbody.position;		
 		
+		_position.value = position;
+
 		if (_canBeGroundedTimer > 0.0f) {
 			_canBeGroundedTimer -= Time.fixedDeltaTime;
 		}
 
+		var isTouchingGround = Physics2D.BoxCastNonAlloc((Vector2)position + _groundCheckOffset, _groundCheckSize, 0.0f, Vector2.down, _raycastResults, _groundCheckDistance, _groundCheckLayerMask) > 0;
+
 		// Ground Check
-		if (_canBeGroundedTimer <= 0.0f && Physics2D.BoxCastNonAlloc((Vector2)position + _groundCheckOffset, _groundCheckSize, 0.0f, Vector2.down, _raycastResults, _groundCheckDistance, _groundCheckLayerMask) > 0) {
+		if (_canBeGroundedTimer <= 0.0f && isTouchingGround) {
 			_grounded = true;
+			if (!_wasTouchingGround) {
+				_didBecomeGrounded.position = transform.position;
+				_didBecomeGrounded.Raise(this, _didBecomeGrounded);
+			}			
 		}
+		_wasTouchingGround = isTouchingGround;
 		// else {
 		// 	_grounded = false;			 
-		// }
+		// }		
 
 		bool directionKeyIsActive = false;
 
@@ -131,6 +149,7 @@ public class CharacterMovementController : MonoBehaviour {
 				_jumpEnergy = _jumpStartEnergy;
 				_grounded = false;
 				_jumpKeyWasUp = false;
+				_characterStartedJumpEvent.position = transform.position;
 				_characterStartedJumpEvent.Raise(this, _characterStartedJumpEvent);
 			} else {
 				velocity.y += _jumpEnergy * Time.fixedDeltaTime;

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-public class CharacterVSEnemyHitDetector : MonoBehaviour {
+public class CharacterVSEnemyHitDetector : MonoBehaviour {	
 
 	[SerializeField] LayerMask _enemyLayerMask;
 
-	public event System.Action enemyHitDetected;
+	public event System.Action wasHitByEnemyEvent;
 
 	private void Awake() {
 
@@ -17,9 +17,9 @@ public class CharacterVSEnemyHitDetector : MonoBehaviour {
 	void OnTriggerEnter2D(Collider2D other) {
 		
 		if (_enemyLayerMask.ContainsLayer(other.gameObject.layer)) {
-			Debug.Log("ASDF");
-			if (enemyHitDetected != null) {
-				enemyHitDetected();
+	
+			if (wasHitByEnemyEvent != null) {
+				wasHitByEnemyEvent();
 			}
 		}
 	}

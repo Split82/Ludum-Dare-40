@@ -31,7 +31,10 @@ public class Screenshake : MonoBehaviour {
 
 		transform.localPosition = _startPos + (Vector3)offset;
 
-		_screenshakeValue *= _fade;
+		_screenshakeValue -= _fade * Time.deltaTime;
+		if (_screenshakeValue < 0.0f) {
+			_screenshakeValue = 0.0f;
+		}
 	}
 
 	public void AddScreenshake(float value) {
